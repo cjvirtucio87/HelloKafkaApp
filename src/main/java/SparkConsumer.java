@@ -40,7 +40,7 @@ public class SparkConsumer {
     private static  JavaPairInputDStream createDStream(JavaStreamingContext ssc) {
         // kafkaParams: properties of the stream to be consumed
         Map<String, String> kafkaParams = new HashMap<String, String>();
-        kafkaParams.put("metadata.broker.list", "localhost:9090");
+        kafkaParams.put("metadata.broker.list", "localhost:9092");
         // collection of topics; only have one topic in the collection for now
         Set<String> topics = Collections.singleton("some-new-topic");
 
