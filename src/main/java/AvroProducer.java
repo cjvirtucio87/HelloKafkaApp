@@ -12,7 +12,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * Created by cvirtucio on 4/11/2017.
  */
 public class AvroProducer {
-    private static final String USER_SCHEMA = "{"
+    public static final String USER_SCHEMA = "{"
             + "\"type\":\"record\","
             + "\"name\":\"myrecord\","
             + "\"fields\":["

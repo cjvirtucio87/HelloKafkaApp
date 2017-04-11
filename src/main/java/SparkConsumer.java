@@ -1,5 +1,10 @@
 
+import com.twitter.bijection.Injection;
+import com.twitter.bijection.avro.GenericAvroCodecs;
+import kafka.serializer.DefaultDecoder;
 import kafka.serializer.StringDecoder;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -9,6 +14,7 @@ import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaPairInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka.KafkaUtils;
+import scala.Tuple2;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,18 +53,35 @@ public class SparkConsumer {
         return KafkaUtils.createDirectStream(
                 ssc,
                 String.class,
-                String.class,
+                byte[].class,
                 StringDecoder.class,
-                StringDecoder.class,
+                DefaultDecoder.class,
                 kafkaParams,
                 topics
         );
     }
 
     private static void process(JavaPairInputDStream dStream) {
-        VoidFunction<?> onEach = new VoidFunction<JavaPairRDD<String, String>>() {
-            public void call(JavaPairRDD<String, String> rdd) throws Exception {
-                System.out.println("--- New RDD with " + rdd.partitions().size() + " partitions and " + rdd.count() + " records ");
+        // callback for each record in RDD
+        final VoidFunction onEachRdd = new VoidFunction<Tuple2<String, byte[]>>() {
+            public void call(Tuple2<String, byte[]> avroRecord) throws Exception {
+                Schema.Parser parser = new Schema.Parser();
+                Schema schema = parser.parse(AvroProducer.USER_SCHEMA);
+
+                // setup Injection function that transforms each byte[] to a Generic Record
+                Injection<GenericRecord, byte[]> recordInjection = GenericAvroCodecs.toBinary(schema);
+                GenericRecord record = recordInjection.invert(avroRecord._2).get();
+
+                System.out.println("str1= " + record.get("str1")
+                        + ", str2= " + record.get("str2")
+                        + ", int1=" + record.get("int1"));
+            }
+        };
+
+        // callback for each RDD in stream
+        final VoidFunction onEach = new VoidFunction<JavaPairRDD<String, byte[]>>() {
+            public void call(JavaPairRDD<String, byte[]> rdd) throws Exception {
+                rdd.foreach(onEachRdd);
             }
         };
 
