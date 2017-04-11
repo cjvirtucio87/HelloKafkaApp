@@ -78,4 +78,7 @@ public class AvroProducer {
         Properties props = AvroProducer.createProps();
         return new KafkaProducer(props);
     }
+
+    protected AvroProducer() {
+    }
 }
