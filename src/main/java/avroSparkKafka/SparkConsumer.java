@@ -1,3 +1,4 @@
+package avroSparkKafka;
 
 import com.twitter.bijection.Injection;
 import com.twitter.bijection.avro.GenericAvroCodecs;

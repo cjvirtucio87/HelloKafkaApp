@@ -1,3 +1,5 @@
+package avroSparkKafka;
+
 import java.util.Properties;
 
 import com.twitter.bijection.Injection;
@@ -74,7 +76,7 @@ public class AvroProducer {
     }
 
     private static KafkaProducer createProducer() {
-        // setup properties for Kafka Producer
+        // setup properties for Kafka avroSparkKafka.Producer
         Properties props = AvroProducer.createProps();
         return new KafkaProducer(props);
     }
